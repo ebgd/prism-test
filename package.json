@@ -1,0 +1,11 @@
+{
+  "name": "prism-test-repo",
+  "version": "1.0.0",
+  "description": "A test repository for Solidity Prism",
+  "devDependencies": {
+    "hardhat": "^2.22.6"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^5.0.2"
+  }
+}
