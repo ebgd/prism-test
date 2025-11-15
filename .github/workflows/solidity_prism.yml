@@ -22,7 +22,7 @@ jobs:
           AUDIT_TYPE=$(echo "$COMMENT" | awk '{print $2}')
           if [ -z "$AUDIT_TYPE" ]; then AUDIT_TYPE="full"; fi
           ANALYSIS_MODE=$(echo "$COMMENT" | awk '{print $3}')
-          if [ -z "$ANALYSIS_MODE" ]; then ANALYSIS_MODE="standard"; fi
+          if [ -z "$ANALYSIS_MODE" ]; then ANALYSIS_MODE="deep"; fi
           echo "audit_type=$AUDIT_TYPE" >> $GITHUB_OUTPUT
           echo "analysis_mode=$ANALYSIS_MODE" >> $GITHUB_OUTPUT
 
