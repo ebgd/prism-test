@@ -36,21 +36,26 @@ jobs:
           echo "sha=$HEAD_SHA" >> $GITHUB_OUTPUT
 
       # Step 3: Get the Installation ID from event payload
-      - name: Get Installation Information
+      - name: Comprehensive Debug
         run: |
-          echo "🔍 Fetching installation information for repo: ${{ github.repository }}"
-      
-          response=$(curl -s \
+          echo "=== Available GitHub Context ==="
+          echo "Event: ${{ github.event_name }}"
+          echo "Action: ${{ github.event.action }}"
+          echo "Actor: ${{ github.actor }}"
+          echo "Repository: ${{ github.repository }}"
+          
+          echo "=== App Context ==="
+          echo "github.app: ${{ toJSON(github.app) }}"
+          
+          echo "=== Testing API Access ==="
+          # Test basic API access
+          curl -s \
             -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
             -H "Accept: application/vnd.github.v3+json" \
-            "https://api.github.com/repos/${{ github.repository }}/installation")
-      
-          echo "🔍 Raw API response:"
-          echo "$response"
-      
-          echo "🔍 Parsed JSON:"
-          echo "$response" | jq .
-
+            "https://api.github.com/repos/${{ github.repository }}" | jq '{name, private, id}'
+          
+          echo "=== Available Secrets ==="
+          echo "GITHUB_TOKEN exists: ${{ secrets.GITHUB_TOKEN != '' }}"
 
 
 
