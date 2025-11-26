@@ -36,24 +36,21 @@ jobs:
           echo "sha=$HEAD_SHA" >> $GITHUB_OUTPUT
 
       # Step 3: Get the Installation ID from event payload
+      - name: Get Installation Information
+        run: |
+          echo "🔍 Fetching installation information for repo: ${{ github.repository }}"
       
-      - name: Get Installation ID via github-script
-        id: installation
-        uses: actions/github-script@v6
-        with:
-          script: |
-            const installation = await github.rest.apps.getRepoInstallation({
-              owner: context.repo.owner,
-              repo: context.repo.repo
-            });
+          response=$(curl -s \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/repos/${{ github.repository }}/installation")
       
-            const id = installation.data.id;
+          echo "🔍 Raw API response:"
+          echo "$response"
       
-            // 👉 Output officiel
-            core.setOutput('installation_id', id);
-      
-            // 👉 Log lisible dans GitHub Actions
-            console.log(`🔍 Installation ID detected: ${id}`);
+          echo "🔍 Parsed JSON:"
+          echo "$response" | jq .
+
 
 
 
