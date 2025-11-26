@@ -37,17 +37,24 @@ jobs:
 
       # Step 3: Get the Installation ID from event payload
       
-      - name: Get Installation ID
-        id: get_installation
-        run: |
-          response=$(curl -s \
-            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-            -H "Accept: application/vnd.github.v3+json" \
-            "https://api.github.com/repos/${{ github.repository }}/installation")
-          
-          installation_id=$(echo "$response" | jq -r '.id')
-          echo "installation_id=$installation_id" >> $GITHUB_OUTPUT
-          echo "🔍 Installation ID detected: $installation_id"
+      - name: Get Installation ID via github-script
+        id: installation
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const installation = await github.rest.apps.getRepoInstallation({
+              owner: context.repo.owner,
+              repo: context.repo.repo
+            });
+      
+            const id = installation.data.id;
+      
+            // 👉 Output officiel
+            core.setOutput('installation_id', id);
+      
+            // 👉 Log lisible dans GitHub Actions
+            console.log(`🔍 Installation ID detected: ${id}`);
+
 
 
       # Step 4: Trigger the Solidity Prism backend API
