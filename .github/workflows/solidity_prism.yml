@@ -47,6 +47,7 @@ jobs:
           
           installation_id=$(echo "$response" | jq -r '.id')
           echo "installation_id=$installation_id" >> $GITHUB_OUTPUT
+          echo "🔍 Installation ID detected: $installation_id"
 
 
       # Step 4: Trigger the Solidity Prism backend API
