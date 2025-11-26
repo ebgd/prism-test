@@ -1,4 +1,3 @@
-
 # .github/workflows/solidity_prism.yml
 
 name: 'Solidity Prism Audit'
@@ -12,7 +11,7 @@ jobs:
     # This job only runs when a PR comment starts with "/audit"
     if: github.event.issue.pull_request && startsWith(github.event.comment.body, '/audit')
     permissions:
-      pull-requests: write
+      pull-requests: write    
     runs-on: ubuntu-latest
     steps:
       # Step 1: Parse the command from the comment (e.g., /audit gas deep)
@@ -34,63 +33,8 @@ jobs:
           PR_DATA=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" ${{ github.event.issue.pull_request.url }})
           HEAD_SHA=$(echo $PR_DATA | jq -r '.head.sha')
           echo "sha=$HEAD_SHA" >> $GITHUB_OUTPUT
-
-      # Step 3: Get the Installation ID from event payload
-      - name: Comprehensive Debug
-        run: |
-          echo "=== Available GitHub Context ==="
-          echo "Event: ${{ github.event_name }}"
-          echo "Action: ${{ github.event.action }}"
-          echo "Actor: ${{ github.actor }}"
-          echo "Repository: ${{ github.repository }}"
-          
-          echo "=== App Context ==="
-          echo "github.app: ${{ toJSON(github.app) }}"
-          
-          echo "=== Testing API Access ==="
-          # Test basic API access
-          curl -s \
-            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-            -H "Accept: application/vnd.github.v3+json" \
-            "https://api.github.com/repos/${{ github.repository }}" | jq '{name, private, id}'
-          
-          echo "=== Available Secrets ==="
-          echo "GITHUB_TOKEN exists: ${{ secrets.GITHUB_TOKEN != '' }}"
-
-      - name: Check Repository Installations (as User)
-        run: |
-          echo "🔍 Checking installations accessible to the current token:"
-          
-          # This endpoint lists installations accessible to the authenticated user
-          curl -s \
-            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-            -H "Accept: application/vnd.github.v3+json" \
-            "https://api.github.com/user/installations" | jq .
-
-      # Use GITHUB_TOKEN directly for repository operations
-      - name: Use Repository Token
-        run: |
-          # Most repository operations work with GITHUB_TOKEN
-          curl -s \
-            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-            -H "Accept: application/vnd.github.v3+json" \
-            "https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.issue.number }}/comments" | jq '.[0] | {id, body}'
       
-      - name: Use Stored Installation ID
-        run: |
-          echo "Using installation ID: ${{ secrets.APP_INSTALLATION_ID }}"
-
-      - name: Check Authentication Context
-        run: |
-          echo "🔍 Checking what type of token we have:"
-          
-          # Get current user info to see what context we're in
-          curl -s \
-            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-            -H "Accept: application/vnd.github.v3+json" \
-            "https://api.github.com/user" | jq '{login, type}'          
-
-      # Step 4: Trigger the Solidity Prism backend API
+      # Step 3: Trigger the Solidity Prism backend API
       - name: Trigger Audit Backend
         run: |
           curl -X POST "https://audit.solidityprism.dev/api/v1/github-action-trigger" \
@@ -99,13 +43,12 @@ jobs:
           -d '{
             "repository_id": "${{ github.event.repository.id }}",
             "repository_name": "${{ github.event.repository.full_name }}",
-            "owner_id": "${{ github.event.repository.owner.id }}",
+            "owner_id": "${{ github.event.repository.owner.id }}",            
             "repository_url": "${{ github.event.repository.git_url }}",
             "pr_number": "${{ github.event.issue.number }}",
             "commit_sha": "${{ steps.get_sha.outputs.sha }}",
             "comments_url": "${{ github.event.issue.comments_url }}",
             "github_token": "${{ github.token }}",
-            "installation_id": "${{ steps.get_installation.outputs.installation_id }}",
             "audit_type": "${{ steps.parse_command.outputs.audit_type }}",
             "analysis_mode": "${{ steps.parse_command.outputs.analysis_mode }}"
-          }'    
+          }'
