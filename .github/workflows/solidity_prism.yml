@@ -36,19 +36,7 @@ jobs:
           echo "sha=$HEAD_SHA" >> $GITHUB_OUTPUT
 
       # Step 3: Get the Installation ID from event payload
-      - name: Get Installation ID
-        id: get_installation
-        run: |
-          # L'installation ID devrait être dans github.event.installation
-          INSTALLATION_ID="${{ github.event.installation.id }}"
-          
-          if [ -z "$INSTALLATION_ID" ] || [ "$INSTALLATION_ID" == "null" ]; then
-            echo "[ERROR] Installation ID not found in event payload"
-            exit 1
-          fi
-          
-          echo "installation_id=$INSTALLATION_ID" >> $GITHUB_OUTPUT
-          echo "✅ Installation ID from event: $INSTALLATION_ID"
+
       
       - name: Debug - Show event payload
         run: |
