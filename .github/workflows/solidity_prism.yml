@@ -57,7 +57,38 @@ jobs:
           echo "=== Available Secrets ==="
           echo "GITHUB_TOKEN exists: ${{ secrets.GITHUB_TOKEN != '' }}"
 
+      - name: Check Repository Installations (as User)
+        run: |
+          echo "🔍 Checking installations accessible to the current token:"
+          
+          # This endpoint lists installations accessible to the authenticated user
+          curl -s \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/user/installations" | jq .
 
+      # Use GITHUB_TOKEN directly for repository operations
+      - name: Use Repository Token
+        run: |
+          # Most repository operations work with GITHUB_TOKEN
+          curl -s \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.issue.number }}/comments" | jq '.[0] | {id, body}'
+      
+      - name: Use Stored Installation ID
+        run: |
+          echo "Using installation ID: ${{ secrets.APP_INSTALLATION_ID }}"
+
+      - name: Check Authentication Context
+        run: |
+          echo "🔍 Checking what type of token we have:"
+          
+          # Get current user info to see what context we're in
+          curl -s \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/user" | jq '{login, type}'          
 
       # Step 4: Trigger the Solidity Prism backend API
       - name: Trigger Audit Backend
