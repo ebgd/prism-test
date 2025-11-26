@@ -11,7 +11,7 @@ jobs:
     # This job only runs when a PR comment starts with "/audit"
     if: github.event.issue.pull_request && startsWith(github.event.comment.body, '/audit')
     permissions:
-      pull-requests: write    
+      pull-requests: write
     runs-on: ubuntu-latest
     steps:
       # Step 1: Parse the command from the comment (e.g., /audit gas deep)
@@ -43,7 +43,7 @@ jobs:
           -d '{
             "repository_id": "${{ github.event.repository.id }}",
             "repository_name": "${{ github.event.repository.full_name }}",
-            "owner_id": "${{ github.event.repository.owner.id }}",            
+            "owner_id": "${{ github.event.repository.owner.id }}",
             "repository_url": "${{ github.event.repository.git_url }}",
             "pr_number": "${{ github.event.issue.number }}",
             "commit_sha": "${{ steps.get_sha.outputs.sha }}",
